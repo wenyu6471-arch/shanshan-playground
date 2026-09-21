@@ -116,7 +116,8 @@ function renderSeries(seriesId) {
     button.dataset.playVideo = item.title;
     button.dataset.episodeIndex = String(originalIndex + 1);
     if (item.url) button.dataset.localUrl = item.url;
-    button.innerHTML = `<span class="episode-thumb"><img src="${series.cover}" alt=""><i>${originalIndex + 1}</i></span><strong>${escapeHtml(item.title)}</strong><small>第 ${originalIndex + 1} 集</small>`;
+    const cover = item.cover || series.cover;
+    button.innerHTML = `<span class="episode-thumb"><img src="${escapeHtml(cover)}" alt=""><i>${originalIndex + 1}</i></span><strong>${escapeHtml(item.title)}</strong><small>第 ${originalIndex + 1} 集</small>`;
     return button;
   }));
 }
@@ -191,11 +192,12 @@ async function restoreContentState(mode) {
   items.forEach((saved) => {
     const card = [...shelf.querySelectorAll('.media-cover')].find((item) => item.dataset.contentId === saved.id);
     if (!card) return;
+    const migratedTitle = saved.id === 'local-video-series' && saved.title === '本地动画' ? '闪闪的动画' : saved.title;
     const title = card.querySelector('.media-cover__title');
-    if (title) title.textContent = saved.title;
+    if (title) title.textContent = migratedTitle;
     card.hidden = saved.visible === false;
-    if (card.dataset.playAudio) card.dataset.playAudio = saved.title;
-    if (card.dataset.openSeries && seriesCatalog[card.dataset.openSeries]) seriesCatalog[card.dataset.openSeries].title = saved.title;
+    if (card.dataset.playAudio) card.dataset.playAudio = migratedTitle;
+    if (card.dataset.openSeries && seriesCatalog[card.dataset.openSeries]) seriesCatalog[card.dataset.openSeries].title = migratedTitle;
     shelf.append(card);
   });
 }
@@ -510,7 +512,7 @@ holdButton.addEventListener('keyup', cancelHold);
 });
 
 const fileInput = document.querySelector('#local-file-input');
-const importedFiles = document.querySelector('#imported-files');
+const LOCAL_VIDEO_PLACEHOLDER = 'assets/illustrations/watch-fort.png';
 
 function baseFileName(name) {
   return name.replace(/\.[^.]+$/, '');
@@ -532,10 +534,46 @@ function addImportedAudio(file, url, id, category = 'music') {
   if (managedMode === category) renderContentManager();
 }
 
-function addImportedVideo(file, url, id) {
+function videoThumbnail(file) {
+  return new Promise((resolve) => {
+    const source = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    const cleanup = (result = null) => {
+      window.clearTimeout(timeout);
+      video.removeAttribute('src');
+      video.load();
+      URL.revokeObjectURL(source);
+      resolve(result);
+    };
+    const capture = () => {
+      if (!video.videoWidth || !video.videoHeight) return cleanup();
+      const canvas = document.createElement('canvas');
+      const width = 640;
+      canvas.width = width;
+      canvas.height = Math.round(width * video.videoHeight / video.videoWidth);
+      const context = canvas.getContext('2d');
+      if (!context) return cleanup();
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => cleanup(blob), 'image/jpeg', 0.84);
+    };
+    const timeout = window.setTimeout(() => cleanup(), 8000);
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.addEventListener('error', () => cleanup(), { once: true });
+    video.addEventListener('loadedmetadata', () => {
+      const duration = Number.isFinite(video.duration) ? video.duration : 0;
+      video.currentTime = Math.min(1, Math.max(0, duration * 0.12));
+    }, { once: true });
+    video.addEventListener('seeked', capture, { once: true });
+    video.src = source;
+  });
+}
+
+function addImportedVideo(file, url, id, thumbnailUrl = LOCAL_VIDEO_PLACEHOLDER) {
   const localId = 'local-videos';
   if (!seriesCatalog[localId]) {
-    seriesCatalog[localId] = { title: '本地动画', cover: 'assets/illustrations/watch-fort.png', episodes: [] };
+    seriesCatalog[localId] = { title: '闪闪的动画', cover: thumbnailUrl, episodes: [] };
     const shelf = document.querySelector('[data-home-mount="video"] .home-media-shelf');
     if (shelf) {
       const card = document.createElement('button');
@@ -543,12 +581,12 @@ function addImportedVideo(file, url, id) {
       card.className = 'media-cover';
       card.dataset.contentId = 'local-video-series';
       card.dataset.openSeries = localId;
-      card.innerHTML = `<img class="cover-art cover-art--photo" src="assets/illustrations/watch-fort.png" alt="" aria-hidden="true"><span class="media-cover__title">本地动画</span><span class="media-cover__meta" data-local-video-count>动画合集 · 0 个章节</span>`;
+      card.innerHTML = `<img class="cover-art cover-art--photo" src="${escapeHtml(thumbnailUrl)}" alt="" aria-hidden="true"><span class="media-cover__title">闪闪的动画</span><span class="media-cover__meta" data-local-video-count>动画合集 · 0 个章节</span>`;
       shelf.append(card);
       if (managedMode === 'video') renderContentManager();
     }
   }
-  seriesCatalog[localId].episodes.push({ title: baseFileName(file.name), url, id });
+  seriesCatalog[localId].episodes.push({ title: baseFileName(file.name), url, id, cover: thumbnailUrl });
   const count = document.querySelector('[data-local-video-count]');
   if (count) count.textContent = `动画合集 · ${seriesCatalog[localId].episodes.length} 个章节`;
 }
@@ -568,6 +606,7 @@ fileInput.addEventListener('change', async () => {
     }
     const category = audio && managedMode === 'story' ? 'story' : audio ? 'music' : 'video';
     const id = `local-${category}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const thumbnailBlob = video ? await videoThumbnail(file) : null;
     try {
       await putRecord('media', {
         id,
@@ -578,7 +617,8 @@ fileInput.addEventListener('change', async () => {
         mimeType: file.type,
         category,
         createdAt: Date.now(),
-        blob: file
+        blob: file,
+        thumbnailBlob
       });
     } catch (error) {
       console.warn('本地文件保存失败', error);
@@ -589,10 +629,11 @@ fileInput.addEventListener('change', async () => {
     const url = URL.createObjectURL(file);
     sessionObjectUrls.push(url);
     if (audio) addImportedAudio(file, url, id, category);
-    if (video) addImportedVideo(file, url, id);
-    const item = document.createElement('li');
-    item.textContent = `${audio ? '音频' : '视频'} · ${file.name}`;
-    importedFiles.append(item);
+    if (video) {
+      const thumbnailUrl = thumbnailBlob ? URL.createObjectURL(thumbnailBlob) : LOCAL_VIDEO_PLACEHOLDER;
+      if (thumbnailBlob) sessionObjectUrls.push(thumbnailUrl);
+      addImportedVideo(file, url, id, thumbnailUrl);
+    }
     added += 1;
   }
   fileInput.value = '';
@@ -660,17 +701,23 @@ async function prepareOfflineStorage(notify = false) {
 
 async function restoreImportedMedia() {
   const records = (await getAllRecords('media')).sort((a, b) => a.createdAt - b.createdAt);
-  records.forEach((record) => {
+  for (const record of records) {
     importedFileKeys.add(record.key);
     const url = URL.createObjectURL(record.blob);
     sessionObjectUrls.push(url);
     const fileInfo = { name: record.name };
-    if (record.category === 'video') addImportedVideo(fileInfo, url, record.id);
-    else addImportedAudio(fileInfo, url, record.id, record.category || 'music');
-    const item = document.createElement('li');
-    item.textContent = `${record.category === 'video' ? '视频' : '音频'} · ${record.name}`;
-    importedFiles.append(item);
-  });
+    if (record.category === 'video') {
+      if (!record.thumbnailBlob) {
+        record.thumbnailBlob = await videoThumbnail(record.blob);
+        if (record.thumbnailBlob) await putRecord('media', record);
+      }
+      const thumbnailUrl = record.thumbnailBlob ? URL.createObjectURL(record.thumbnailBlob) : LOCAL_VIDEO_PLACEHOLDER;
+      if (record.thumbnailBlob) sessionObjectUrls.push(thumbnailUrl);
+      addImportedVideo(fileInfo, url, record.id, thumbnailUrl);
+    } else {
+      addImportedAudio(fileInfo, url, record.id, record.category || 'music');
+    }
+  }
 }
 
 async function restoreSettings() {
@@ -696,6 +743,7 @@ async function initializePersistentApp() {
     await openDatabase();
     await restoreImportedMedia();
     await Promise.all(['music', 'story', 'video'].map(restoreContentState));
+    await saveContentState('video');
     await restoreSettings();
     renderContentManager(managedMode);
   } catch (error) {

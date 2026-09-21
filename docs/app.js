@@ -513,7 +513,7 @@ holdButton.addEventListener('keyup', cancelHold);
 
 const fileInput = document.querySelector('#local-file-input');
 const LOCAL_VIDEO_PLACEHOLDER = 'assets/illustrations/watch-fort.png';
-const VIDEO_THUMBNAIL_VERSION = 3;
+const VIDEO_THUMBNAIL_VERSION = 4;
 
 function baseFileName(name) {
   return name.replace(/\.[^.]+$/, '');
@@ -577,7 +577,9 @@ function videoThumbnail(file) {
       if (!bestFrame || brightness > bestFrame.brightness) bestFrame = { canvas, brightness };
       candidateIndex += 1;
       if (candidateIndex < candidates.length) {
-        video.currentTime = candidates[candidateIndex];
+        window.setTimeout(() => {
+          if (!settled) video.currentTime = candidates[candidateIndex];
+        }, 0);
         return;
       }
       bestFrame.canvas.toBlob((blob) => cleanup(blob), 'image/jpeg', 0.84);
@@ -594,7 +596,7 @@ function videoThumbnail(file) {
       const duration = Number.isFinite(video.duration) ? video.duration : 0;
       const latest = Math.max(0.2, duration - 0.2);
       candidates = duration
-        ? [...new Set([0.18, 0.4, 0.62].map((ratio) => Math.min(latest, Math.max(0.2, duration * ratio))))]
+        ? [...new Set([0.25, 0.5, 0.75].map((ratio) => Math.min(latest, Math.max(0.2, duration * ratio))))]
         : [1];
       video.currentTime = candidates[0];
     }, { once: true });

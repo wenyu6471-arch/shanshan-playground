@@ -513,7 +513,7 @@ holdButton.addEventListener('keyup', cancelHold);
 
 const fileInput = document.querySelector('#local-file-input');
 const LOCAL_VIDEO_PLACEHOLDER = 'assets/illustrations/watch-fort.png';
-const VIDEO_THUMBNAIL_VERSION = 2;
+const VIDEO_THUMBNAIL_VERSION = 3;
 
 function baseFileName(name) {
   return name.replace(/\.[^.]+$/, '');
@@ -539,7 +539,13 @@ function videoThumbnail(file) {
   return new Promise((resolve) => {
     const source = URL.createObjectURL(file);
     const video = document.createElement('video');
+    let settled = false;
+    let candidates = [];
+    let candidateIndex = 0;
+    let bestFrame = null;
     const cleanup = (result = null) => {
+      if (settled) return;
+      settled = true;
       window.clearTimeout(timeout);
       video.removeAttribute('src');
       video.load();
@@ -555,18 +561,44 @@ function videoThumbnail(file) {
       const context = canvas.getContext('2d');
       if (!context) return cleanup();
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob((blob) => cleanup(blob), 'image/jpeg', 0.84);
+      const sample = document.createElement('canvas');
+      sample.width = 64;
+      sample.height = Math.max(1, Math.round(64 * video.videoHeight / video.videoWidth));
+      const sampleContext = sample.getContext('2d', { willReadFrequently: true });
+      let brightness = 0;
+      if (sampleContext) {
+        sampleContext.drawImage(canvas, 0, 0, sample.width, sample.height);
+        const pixels = sampleContext.getImageData(0, 0, sample.width, sample.height).data;
+        for (let index = 0; index < pixels.length; index += 4) {
+          brightness += pixels[index] * 0.2126 + pixels[index + 1] * 0.7152 + pixels[index + 2] * 0.0722;
+        }
+        brightness /= pixels.length / 4;
+      }
+      if (!bestFrame || brightness > bestFrame.brightness) bestFrame = { canvas, brightness };
+      candidateIndex += 1;
+      if (candidateIndex < candidates.length) {
+        video.currentTime = candidates[candidateIndex];
+        return;
+      }
+      bestFrame.canvas.toBlob((blob) => cleanup(blob), 'image/jpeg', 0.84);
     };
-    const timeout = window.setTimeout(() => cleanup(), 8000);
+    const timeout = window.setTimeout(() => {
+      if (bestFrame) bestFrame.canvas.toBlob((blob) => cleanup(blob), 'image/jpeg', 0.84);
+      else cleanup();
+    }, 15000);
     video.muted = true;
     video.playsInline = true;
     video.preload = 'metadata';
     video.addEventListener('error', () => cleanup(), { once: true });
     video.addEventListener('loadedmetadata', () => {
       const duration = Number.isFinite(video.duration) ? video.duration : 0;
-      video.currentTime = Math.min(10, Math.max(1, duration * 0.2));
+      const latest = Math.max(0.2, duration - 0.2);
+      candidates = duration
+        ? [...new Set([0.18, 0.4, 0.62].map((ratio) => Math.min(latest, Math.max(0.2, duration * ratio))))]
+        : [1];
+      video.currentTime = candidates[0];
     }, { once: true });
-    video.addEventListener('seeked', capture, { once: true });
+    video.addEventListener('seeked', capture);
     video.src = source;
   });
 }

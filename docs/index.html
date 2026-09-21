@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="oklch(97% 0.012 95)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="闪闪小乐园">
+  <meta name="description" content="闪闪的本地音乐、故事和动画乐园">
+  <link rel="manifest" href="manifest.webmanifest?v=1">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=1">
+  <title>闪闪小乐园</title>
+  <link rel="stylesheet" href="tokens.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="redesign.css?v=26">
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="i-headphones" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M18 19h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-2v6h1ZM6 19H5a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h2v6H6Z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m6 5 9 7-9 7V5ZM18 5v14"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="m18 5-9 7 9 7V5ZM6 5v14"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M5 10v4h4l5 4V6L9 10H5Z"/><path d="M17 9a4 4 0 0 1 0 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7h7l2 2h9v10H3V7Z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 19V9M12 19V5M19 19v-7"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h11M8 12h11M8 18h11M4 6h.01M4 12h.01M4 18h.01"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 14.5v-5l-2-.7-.7-1.8.9-1.9-3.5-2-1.4 1.5h-2.1L8.8 3.1l-3.5 2 .9 1.9-.7 1.8-2 .7v5l2 .7.7 1.8-.9 1.9 3.5 2 1.4-1.5h2.1l1.4 1.5 3.5-2-.9-1.9.7-1.8 2-.7Z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8v9h-6v-6H9v6H3v-9Z"/></symbol>
+    <symbol id="i-blocks" viewBox="0 0 24 24"><rect x="3" y="12" width="8" height="8" rx="1.5"/><rect x="13" y="12" width="8" height="8" rx="1.5"/><rect x="8" y="3" width="8" height="7" rx="1.5"/></symbol>
+    <symbol id="i-book-open" viewBox="0 0 24 24"><path d="M3 5.5c3.7-.8 6.7.1 9 2.4v11c-2.3-2.3-5.3-3.2-9-2.4v-11Z"/><path d="M21 5.5c-3.7-.8-6.7.1-9 2.4v11c2.3-2.3 5.3-3.2 9-2.4v-11Z"/></symbol>
+    <symbol id="i-family" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.4-4.2 2.2-6.3 5.5-6.3s5.1 2.1 5.5 6.3"/><path d="M13.5 15.2c1-.8 2.2-1.2 3.5-1.2 2.8 0 4.3 2 4.5 6"/></symbol>
+  </svg>
+
+  <main class="app-shell" id="app">
+    <section class="screen screen--kid is-active" data-screen="home" aria-labelledby="home-title">
+      <header class="kid-bar">
+        <div class="brand-mark" aria-label="闪闪小乐园">
+          <img class="brand-mascot" src="assets/illustrations/shanshan-mascot.png?v=5" alt="">
+          <span id="home-title">闪闪小乐园</span>
+        </div>
+        <div class="home-icon-nav" role="tablist" aria-label="选择音乐、故事或动画">
+          <button class="home-icon-tab is-selected" type="button" role="tab" aria-selected="true" data-home-mode="music">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-listen.png?v=1" alt="" aria-hidden="true"></span>
+            <strong class="visually-hidden">音乐</strong>
+          </button>
+          <button class="home-icon-tab" type="button" role="tab" aria-selected="false" data-home-mode="story">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-story.png?v=1" alt="" aria-hidden="true"></span>
+            <strong class="visually-hidden">故事</strong>
+          </button>
+          <button class="home-icon-tab" type="button" role="tab" aria-selected="false" data-home-mode="video">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-watch.png?v=1" alt="" aria-hidden="true"></span>
+            <strong class="visually-hidden">动画</strong>
+          </button>
+        </div>
+        <button class="quiet-icon" type="button" data-parent-lock aria-label="进入家长中心">
+          <svg><use href="#i-lock"></use></svg>
+        </button>
+      </header>
+
+      <div class="home-stage">
+        <div class="home-library">
+          <section class="home-media-panel" data-home-panel="music" aria-label="音乐">
+            <div class="home-panel-heading"><h2>音乐</h2><span id="home-music-remaining">剩余可听 42 分钟</span></div>
+            <div data-home-mount="music"></div>
+          </section>
+          <section class="home-media-panel" data-home-panel="story" aria-label="故事" hidden>
+            <div class="home-panel-heading"><h2>故事</h2><span id="home-story-remaining">剩余可听 28 分钟</span></div>
+            <div data-home-mount="story"></div>
+          </section>
+          <section class="home-media-panel" data-home-panel="video" aria-label="动画" hidden>
+            <div class="home-panel-heading"><h2>动画</h2><span id="home-video-remaining">剩余可看 24 分钟</span></div>
+            <div data-home-mount="video"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen screen--kid" data-screen="audio-library" aria-labelledby="audio-title" hidden>
+      <header class="content-bar">
+        <button class="round-control" type="button" data-go="home" aria-label="返回首页"><svg><use href="#i-back"></use></svg></button>
+        <div><p class="soft-label">下滑，还有更多</p><h2 id="audio-title">听一听</h2></div>
+        <div class="time-badge time-badge--free"><svg><use href="#i-headphones"></use></svg><span>不限时</span></div>
+      </header>
+      <div class="media-shelf">
+        <button class="media-cover" type="button" data-content-id="story-bear" data-audio-kind="story" data-player-theme="clay" data-play-audio="小熊去散步">
+          <img class="cover-art cover-art--photo" src="assets/covers/story-bed.jpg" alt="" aria-hidden="true"><span class="media-cover__title">小熊去散步</span><span class="media-cover__meta">故事 · 8 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="music-stars" data-audio-kind="music" data-player-theme="night" data-play-audio="晚安小星星">
+          <img class="cover-art cover-art--photo" src="assets/covers/music-headphones.jpg" alt="" aria-hidden="true"><span class="media-cover__title">晚安小星星</span><span class="media-cover__meta">音乐 · 4 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="music-forest" data-audio-kind="music" data-player-theme="sage" data-play-audio="森林里的声音">
+          <img class="cover-art cover-art--photo" src="assets/covers/music-guitar.jpg" alt="" aria-hidden="true"><span class="media-cover__title">森林里的声音</span><span class="media-cover__meta">音乐 · 5 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="music-lullaby" data-audio-kind="music" data-player-theme="lavender" data-play-audio="摇篮曲">
+          <img class="cover-art cover-art--photo" src="assets/covers/music-piano.jpg" alt="" aria-hidden="true"><span class="media-cover__title">摇篮曲</span><span class="media-cover__meta">音乐 · 6 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="story-rain" data-audio-kind="story" data-player-theme="ocean" data-play-audio="小雨点睡着了">
+          <img class="cover-art cover-art--photo" src="assets/covers/story-reading.jpg" alt="" aria-hidden="true"><span class="media-cover__title">小雨点睡着了</span><span class="media-cover__meta">故事 · 6 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="music-clap" data-audio-kind="music" data-player-theme="clay" data-play-audio="跟着鼓点拍拍手">
+          <img class="cover-art cover-art--photo" src="assets/covers/music-band.jpg" alt="" aria-hidden="true"><span class="media-cover__title">跟着鼓点拍拍手</span><span class="media-cover__meta">音乐 · 3 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="story-umbrella" data-audio-kind="story" data-player-theme="clay" data-play-audio="外婆的红雨伞">
+          <img class="cover-art cover-art--photo" src="assets/covers/story-siblings.jpg" alt="" aria-hidden="true"><span class="media-cover__title">外婆的红雨伞</span><span class="media-cover__meta">故事 · 10 分钟</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="story-moon" data-audio-kind="story" data-player-theme="night" data-play-audio="月亮晚安">
+          <img class="cover-art cover-art--photo" src="assets/covers/story-family.jpg" alt="" aria-hidden="true"><span class="media-cover__title">月亮晚安</span><span class="media-cover__meta">故事 · 7 分钟</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="screen screen--kid" data-screen="video-library" aria-labelledby="video-title" hidden>
+      <header class="content-bar">
+        <button class="round-control" type="button" data-go="home" aria-label="返回首页"><svg><use href="#i-back"></use></svg></button>
+        <div><p class="soft-label">下滑，可以看 8 个</p><h2 id="video-title">看一会儿</h2></div>
+        <div class="time-badge"><svg><use href="#i-clock"></use></svg><span>还剩 24 分钟</span></div>
+      </header>
+      <div class="media-shelf media-shelf--video">
+        <button class="media-cover" type="button" data-content-id="video-bluey" data-open-series="bluey">
+          <img class="cover-art cover-art--photo" src="assets/covers/bluey.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Bluey</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="video-peppa" data-open-series="peppa">
+          <img class="cover-art cover-art--photo" src="assets/covers/peppa.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Peppa Pig</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="video-numberblocks" data-open-series="numberblocks">
+          <img class="cover-art cover-art--photo" src="assets/covers/numberblocks.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Numberblocks</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="video-hey-duggee" data-open-series="hey-duggee">
+          <img class="cover-art cover-art--photo" src="assets/covers/hey-duggee.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Hey Duggee</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="video-puffin-rock" data-open-series="puffin-rock">
+          <img class="cover-art cover-art--photo" src="assets/covers/puffin-rock.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Puffin Rock</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+        <button class="media-cover" type="button" data-content-id="video-daniel-tiger" data-open-series="daniel-tiger">
+          <img class="cover-art cover-art--photo" src="assets/covers/daniel-tiger.jpg" alt="" aria-hidden="true"><span class="media-cover__title">Daniel Tiger</span><span class="media-cover__meta">动画合集 · 6 个章节</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="screen screen--kid screen--series" data-screen="series-detail" aria-labelledby="series-title" hidden>
+      <header class="series-bar">
+        <button class="round-control" type="button" data-go="home" aria-label="返回首页"><svg><use href="#i-back"></use></svg></button>
+        <div><h2 id="series-title">Bluey</h2><p id="series-count">6 个章节</p></div>
+      </header>
+      <div class="series-layout">
+        <div class="episode-grid" id="episode-grid" aria-label="章节列表"></div>
+      </div>
+    </section>
+
+    <section class="screen screen--player screen--audio" data-screen="audio-player" data-audio-theme="night" aria-labelledby="now-audio-title" hidden>
+      <header class="player-bar">
+        <button class="round-control round-control--light" type="button" data-go="home" aria-label="返回首页"><svg><use href="#i-back"></use></svg></button>
+        <span>正在听</span><span class="player-mode">锁屏也能继续播放</span>
+      </header>
+      <div class="audio-player-layout">
+        <div class="album-stage" aria-hidden="true"><span class="album-moon"></span><span class="album-star album-star--one"></span><span class="album-star album-star--two"></span></div>
+        <div class="now-playing">
+          <p class="soft-label soft-label--light">闪闪的睡前歌单</p>
+          <h2 id="now-audio-title">晚安小星星</h2>
+          <p class="track-name">第 2 首 · 月亮慢慢升起来</p>
+          <div class="progress"><span style="--progress: 38%"></span></div>
+          <div class="progress-label"><span>01:42</span><span>04:30</span></div>
+          <div class="transport">
+            <button class="round-control round-control--light" type="button" aria-label="上一首"><svg><use href="#i-prev"></use></svg></button>
+            <button class="play-control" type="button" data-toggle-play aria-label="暂停"><svg><use href="#i-pause"></use></svg></button>
+            <button class="round-control round-control--light" type="button" aria-label="下一首"><svg><use href="#i-next"></use></svg></button>
+          </div>
+        </div>
+      </div>
+      <audio id="local-audio-player" hidden></audio>
+    </section>
+
+    <section class="screen screen--player screen--video" data-screen="video-player" aria-labelledby="now-video-title" hidden>
+      <header class="video-overlay-bar">
+        <button class="round-control round-control--dark" type="button" data-go="series-detail" aria-label="返回章节列表"><svg><use href="#i-back"></use></svg></button>
+        <div class="video-title"><span id="now-video-title">Magic Xylophone</span><small id="now-video-episode">第 1 集</small></div>
+        <div class="time-badge time-badge--dark"><svg><use href="#i-clock"></use></svg><span id="video-remaining">还剩 24 分钟</span></div>
+      </header>
+      <video class="local-video-player" id="local-video-player" controls playsinline hidden></video>
+      <div class="video-scene" aria-label="动画演示画面">
+        <span class="video-sun"></span><span class="video-cloud video-cloud--one"></span><span class="video-cloud video-cloud--two"></span><span class="video-hill video-hill--back"></span><span class="video-hill video-hill--front"></span><span class="video-little-house"></span>
+      </div>
+      <div class="time-warning" role="status" aria-live="polite" hidden>
+        <img class="warning-star warning-mascot" src="assets/illustrations/shanshan-mascot.png?v=5" alt="" aria-hidden="true">
+        <span><strong>再看一会儿就休息啦</strong><small><svg><use href="#i-volume"></use></svg>语音提醒正在播放</small></span>
+      </div>
+      <div class="video-controls">
+        <button class="play-control play-control--video" type="button" data-toggle-play aria-label="暂停"><svg><use href="#i-pause"></use></svg></button>
+        <div class="video-timeline"><span style="--progress: 34%"></span></div>
+        <span class="video-time">03:10 / 08:40</span>
+        <button class="round-control round-control--dark" type="button" aria-label="音量"><svg><use href="#i-volume"></use></svg></button>
+      </div>
+    </section>
+
+    <section class="screen screen--rest" data-screen="rest" aria-labelledby="rest-title" hidden>
+      <div class="rest-constellation" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="rest-card">
+        <img class="sleeping-star sleeping-mascot" src="assets/illustrations/shanshan-mascot.png?v=5" alt="" aria-hidden="true">
+        <p class="soft-label soft-label--light">今天已经看得很认真啦</p>
+        <h2 id="rest-title">动画时间结束啦</h2>
+        <p>让眼睛休息一下，我们去玩点别的吧。</p>
+        <div class="offline-ideas" aria-label="休息活动建议">
+          <span><svg aria-hidden="true"><use href="#i-blocks"></use></svg>搭积木</span>
+          <span><svg aria-hidden="true"><use href="#i-book-open"></use></svg>看绘本</span>
+          <span><svg aria-hidden="true"><use href="#i-family"></use></svg>找爸爸妈妈</span>
+        </div>
+        <button class="btn btn--pear" type="button" data-go="home">回到首页</button>
+      </div>
+    </section>
+
+    <section class="screen screen--kid screen--empty" data-screen="empty" aria-labelledby="empty-title" hidden>
+      <header class="kid-bar empty-kid-bar">
+        <div class="brand-mark" aria-label="闪闪小乐园">
+          <img class="brand-mascot" src="assets/illustrations/shanshan-mascot.png?v=5" alt="">
+          <span>闪闪小乐园</span>
+        </div>
+        <div class="empty-icon-nav" role="tablist" aria-label="选择音乐、故事或动画">
+          <button class="home-icon-tab is-selected" type="button" role="tab" aria-selected="true" data-empty-kind="音乐">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-listen.png?v=1" alt="" aria-hidden="true"></span><strong class="visually-hidden">音乐</strong>
+          </button>
+          <button class="home-icon-tab" type="button" role="tab" aria-selected="false" data-empty-kind="故事">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-story.png?v=1" alt="" aria-hidden="true"></span><strong class="visually-hidden">故事</strong>
+          </button>
+          <button class="home-icon-tab" type="button" role="tab" aria-selected="false" data-empty-kind="动画">
+            <span class="home-icon-tab__mark"><img src="assets/illustrations/icon-watch.png?v=1" alt="" aria-hidden="true"></span><strong class="visually-hidden">动画</strong>
+          </button>
+        </div>
+        <button class="quiet-icon" type="button" data-parent-lock aria-label="进入家长中心"><svg><use href="#i-lock"></use></svg></button>
+      </header>
+      <div class="empty-library-state">
+        <img src="assets/illustrations/shanshan-mascot.png?v=5" alt="" aria-hidden="true">
+        <h2 id="empty-title">这里还没有音乐</h2>
+        <p>请爸爸妈妈到家长中心添加本地内容。</p>
+        <button class="btn btn--soft" type="button" data-go="home">返回演示首页</button>
+      </div>
+    </section>
+
+    <section class="screen screen--parent" data-screen="parent" aria-labelledby="parent-title" hidden>
+      <aside class="parent-nav">
+        <div class="parent-brand"><img class="brand-mascot" src="assets/illustrations/shanshan-mascot.png?v=5" alt=""><strong>家长中心</strong><small>闪闪小乐园</small></div>
+        <nav aria-label="家长中心导航">
+          <button class="parent-nav__item is-selected" type="button" data-parent-tab="overview"><svg><use href="#i-chart"></use></svg><span>今日概览</span></button>
+          <button class="parent-nav__item" type="button" data-parent-tab="content"><svg><use href="#i-folder"></use></svg><span>内容管理</span></button>
+          <button class="parent-nav__item" type="button" data-parent-tab="rules"><svg><use href="#i-clock"></use></svg><span>时间规则</span></button>
+          <button class="parent-nav__item" type="button" data-parent-tab="settings"><svg><use href="#i-settings"></use></svg><span>基础设置</span></button>
+        </nav>
+        <button class="btn btn--soft btn--wide" type="button" data-go="home"><svg><use href="#i-home"></use></svg>回到儿童模式</button>
+      </aside>
+
+      <div class="parent-main">
+        <div class="parent-mobile-bar"><strong>家长中心</strong><button class="btn btn--soft" type="button" data-go="home"><svg><use href="#i-home"></use></svg>儿童模式</button></div>
+        <section class="parent-panel is-active" data-parent-panel="overview">
+          <header class="parent-heading"><div><p>演示日期 · 2026 年 9 月 18 日</p><h1 id="parent-title">今天的使用情况</h1></div><span class="status-dot"><i></i>演示数据 · 内容均来自本地</span></header>
+          <div class="usage-layout">
+            <div class="usage-hero">
+              <div class="usage-dial" aria-label="动画已使用 6 分钟，共 30 分钟"><span><strong>6</strong><small>/ 30 分钟</small></span></div>
+              <div><h2>动画还剩 24 分钟</h2><p>只记录实际播放时间。暂停、浏览列表和缓冲都不会计时。</p><button class="btn btn--pear" type="button" data-add-time>今天加 10 分钟</button></div>
+            </div>
+            <div class="usage-list">
+              <div class="usage-row"><span class="usage-icon usage-icon--cyan"><svg><use href="#i-headphones"></use></svg></span><div><strong>音乐</strong><small>今天听了 18 分钟</small></div><b id="usage-music-left">剩余 42 分钟</b></div>
+              <div class="usage-row"><span class="usage-icon usage-icon--mint"><svg><use href="#i-headphones"></use></svg></span><div><strong>故事</strong><small>今天听了 12 分钟</small></div><b id="usage-story-left">剩余 28 分钟</b></div>
+              <div class="usage-row"><span class="usage-icon usage-icon--coral"><svg><use href="#i-play"></use></svg></span><div><strong>动画</strong><small>今天看了 6 分钟</small></div><b id="usage-left">剩余 24 分钟</b></div>
+              <div class="usage-row"><span class="usage-icon usage-icon--mint"><svg><use href="#i-clock"></use></svg></span><div><strong>允许时段</strong><small>每天可自行调整</small></div><b>08:00–20:30</b></div>
+            </div>
+          </div>
+          <div class="recent-block"><div class="section-heading"><h2>最近播放</h2><button class="text-button" type="button">查看全部</button></div><div class="recent-row"><span class="recent-thumb cover--coral"></span><div><strong>云朵旅行记 · 第 3 集</strong><small>动画 · 今天 15:26</small></div><span>看到 03:10</span></div><div class="recent-row"><span class="recent-thumb cover--blue"></span><div><strong>晚安小星星</strong><small>音乐 · 今天 13:08</small></div><span>听了 12 分钟</span></div></div>
+        </section>
+
+        <section class="parent-panel" data-parent-panel="content" hidden>
+          <header class="parent-heading"><div><p>本机内容</p><h1>内容管理</h1></div><button class="btn btn--pear" type="button" data-import><svg><use href="#i-folder"></use></svg>导入本地内容</button></header>
+          <div class="content-manager">
+            <div class="content-manager__tabs" role="tablist" aria-label="选择内容分类">
+              <button class="is-selected" type="button" role="tab" aria-selected="true" data-manage-mode="music">音乐</button>
+              <button type="button" role="tab" aria-selected="false" data-manage-mode="story">故事</button>
+              <button type="button" role="tab" aria-selected="false" data-manage-mode="video">动画</button>
+            </div>
+            <div class="content-manager__hint"><span>直接修改名称；使用箭头调整儿童端顺序。</span><button class="text-button" type="button" data-go="empty">预览空状态</button></div>
+            <div class="content-manager__list" id="content-manager-list" aria-live="polite"></div>
+            <div class="content-manager__foot"><small>本地文件会保存在这台 iPad 上，不会上传到服务器。</small><ul class="imported-files" id="imported-files" aria-live="polite"></ul></div>
+          </div>
+        </section>
+
+        <section class="parent-panel" data-parent-panel="rules" hidden>
+          <header class="parent-heading"><div><p>由家长定义</p><h1>时间规则</h1></div><button class="btn btn--soft" type="button" data-save-rules>保存修改</button></header>
+          <div class="settings-groups">
+            <section class="settings-group"><h2>动画</h2><div class="setting-row"><label for="video-limit">每天最多观看</label><output id="video-limit-output">30 分钟</output><input id="video-limit" type="range" min="10" max="90" step="5" value="30"></div><div class="setting-row setting-row--switch"><span><strong>播放下一集</strong><small>当前关闭，播完后返回列表</small></span><label class="switch"><input type="checkbox" data-setting="autoplay-video"><i></i><span class="visually-hidden">播放下一集</span></label></div></section>
+            <section class="settings-group"><h2>音乐</h2><div class="setting-row"><label for="music-limit">每天最多收听</label><output id="music-limit-output">60 分钟</output><input id="music-limit" type="range" min="10" max="120" step="5" value="60"></div><div class="setting-row setting-row--switch"><span><strong>锁屏继续播放</strong><small>关闭屏幕后音乐不中断</small></span><label class="switch"><input type="checkbox" checked data-setting="background-music"><i></i><span class="visually-hidden">锁屏继续播放音乐</span></label></div></section>
+            <section class="settings-group"><h2>故事</h2><div class="setting-row"><label for="story-limit">每天最多收听</label><output id="story-limit-output">40 分钟</output><input id="story-limit" type="range" min="10" max="120" step="5" value="40"></div><div class="setting-row setting-row--switch"><span><strong>锁屏继续播放</strong><small>关闭屏幕后故事不中断</small></span><label class="switch"><input type="checkbox" checked data-setting="background-story"><i></i><span class="visually-hidden">锁屏继续播放故事</span></label></div></section>
+            <section class="settings-group"><h2>允许时段</h2><div class="setting-row setting-row--two"><label>开始时间<input type="time" value="08:00" data-setting="allowed-start"></label><label>结束时间<input type="time" value="20:30" data-setting="allowed-end"></label></div></section>
+          </div>
+          <button class="text-button text-button--preview" type="button" data-go="rest">预览时间结束页</button>
+        </section>
+
+        <section class="parent-panel" data-parent-panel="settings" hidden>
+          <header class="parent-heading"><div><p>设备上的偏好</p><h1>基础设置</h1></div></header>
+          <div class="settings-groups"><section class="settings-group"><div class="setting-row"><label for="child-name">孩子称呼</label><input id="child-name" type="text" value="闪闪" data-setting="child-name"></div><div class="setting-row setting-row--switch"><span><strong>语音提醒</strong><small>剩余 5 分钟和 1 分钟时提醒</small></span><label class="switch"><input type="checkbox" checked data-setting="voice-reminder"><i></i><span class="visually-hidden">语音提醒</span></label></div><div class="setting-row setting-row--switch"><span><strong>低动态效果</strong><small>减少界面中的位移动画</small></span><label class="switch"><input type="checkbox" data-setting="reduce-motion"><i></i><span class="visually-hidden">低动态效果</span></label></div></section><section class="settings-group"><h2>离线应用</h2><div class="setting-row setting-row--switch"><span><strong id="pwa-status">正在准备离线使用</strong><small id="pwa-help">在 iPad Safari 中点击“分享”→“添加到主屏幕”。</small></span><button class="btn btn--soft" type="button" data-enable-offline>检查离线状态</button></div></section></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="parent-dialog" id="parent-dialog" aria-labelledby="parent-dialog-title">
+    <button class="dialog-close" type="button" data-close-dialog aria-label="关闭"><span aria-hidden="true">×</span></button>
+    <div class="dialog-lock"><svg><use href="#i-lock"></use></svg></div>
+    <h2 id="parent-dialog-title">这是家长入口</h2>
+    <p>请按住下面的按钮，直到圆环走完。</p>
+    <button class="hold-button" type="button" data-hold-enter><span>按住进入</span><i></i></button>
+    <small>正式应用将优先使用 Face ID、Touch ID 或设备密码。</small>
+  </dialog>
+
+  <div class="toast" role="status" aria-live="polite" hidden><svg><use href="#i-check"></use></svg><span></span></div>
+  <input class="visually-hidden" id="local-file-input" type="file" accept="audio/*,video/*" multiple>
+  <script src="app.js?v=11"></script>
+</body>
+</html>

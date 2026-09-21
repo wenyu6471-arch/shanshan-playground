@@ -1,0 +1,80 @@
+:root {
+  --color-paper: oklch(97.5% 0.012 86);
+  --color-paper-2: oklch(94.5% 0.018 84);
+  --color-paper-3: oklch(90.5% 0.024 82);
+  --color-surface: oklch(99% 0.006 84);
+  --color-ink: oklch(24% 0.028 244);
+  --color-ink-soft: oklch(43% 0.035 242);
+  --color-muted: oklch(52% 0.025 242);
+  --color-rule: oklch(86% 0.018 84);
+  --color-accent: oklch(88% 0.04 224);
+  --color-accent-deep: oklch(61% 0.075 229);
+  --color-accent-ink: oklch(27% 0.045 239);
+  --color-cyan: oklch(75% 0.065 224);
+  --color-cyan-soft: oklch(92.5% 0.028 224);
+  --color-cyan-deep: oklch(46% 0.075 229);
+  --color-coral: oklch(72% 0.105 39);
+  --color-coral-soft: oklch(93% 0.032 41);
+  --color-coral-deep: oklch(51% 0.095 35);
+  --color-warning: oklch(72% 0.105 39);
+  --color-warning-soft: oklch(93% 0.032 41);
+  --color-warning-deep: oklch(51% 0.095 35);
+  --color-content-clay: oklch(73% 0.048 48);
+  --color-content-clay-deep: oklch(56% 0.052 43);
+  --color-content-sun: oklch(87% 0.055 84);
+  --color-content-sage: oklch(77% 0.045 151);
+  --color-content-lilac: oklch(85% 0.032 296);
+  --color-mint: oklch(78% 0.06 154);
+  --color-mint-soft: oklch(93% 0.025 154);
+  --color-lavender: oklch(81% 0.045 300);
+  --color-lavender-soft: oklch(94% 0.018 300);
+  --color-night: oklch(29% 0.05 245);
+  --color-night-soft: oklch(38% 0.055 245);
+  --color-night-text: oklch(97% 0.012 86);
+  --color-focus: oklch(50% 0.1 238);
+  --color-danger: oklch(55% 0.12 32);
+  --color-success: oklch(48% 0.08 154);
+  --color-overlay: oklch(18% 0.025 244 / 0.44);
+  --color-shadow: oklch(25% 0.035 244 / 0.12);
+  --color-shadow-soft: oklch(25% 0.035 244 / 0.06);
+
+  --font-display: "Avenir Next", "SF Pro Rounded", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+  --font-utility: "SF Mono", ui-monospace, monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-display: clamp(2.4rem, 4vw, 4.75rem);
+
+  --radius-sm: 0.75rem;
+  --radius-md: 1rem;
+  --radius-card: 1.5rem;
+  --radius-large: 2rem;
+  --radius-pill: 999px;
+
+  --rule-thin: 1px;
+  --rule-strong: 2px;
+
+  --dur-fast: 100ms;
+  --dur-base: 180ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}

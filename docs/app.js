@@ -513,6 +513,7 @@ holdButton.addEventListener('keyup', cancelHold);
 
 const fileInput = document.querySelector('#local-file-input');
 const LOCAL_VIDEO_PLACEHOLDER = 'assets/illustrations/watch-fort.png';
+const VIDEO_THUMBNAIL_VERSION = 2;
 
 function baseFileName(name) {
   return name.replace(/\.[^.]+$/, '');
@@ -563,7 +564,7 @@ function videoThumbnail(file) {
     video.addEventListener('error', () => cleanup(), { once: true });
     video.addEventListener('loadedmetadata', () => {
       const duration = Number.isFinite(video.duration) ? video.duration : 0;
-      video.currentTime = Math.min(1, Math.max(0, duration * 0.12));
+      video.currentTime = Math.min(10, Math.max(1, duration * 0.2));
     }, { once: true });
     video.addEventListener('seeked', capture, { once: true });
     video.src = source;
@@ -618,7 +619,8 @@ fileInput.addEventListener('change', async () => {
         category,
         createdAt: Date.now(),
         blob: file,
-        thumbnailBlob
+        thumbnailBlob,
+        thumbnailVersion: video ? VIDEO_THUMBNAIL_VERSION : undefined
       });
     } catch (error) {
       console.warn('本地文件保存失败', error);
@@ -707,9 +709,10 @@ async function restoreImportedMedia() {
     sessionObjectUrls.push(url);
     const fileInfo = { name: record.name };
     if (record.category === 'video') {
-      if (!record.thumbnailBlob) {
+      if (!record.thumbnailBlob || record.thumbnailVersion !== VIDEO_THUMBNAIL_VERSION) {
         record.thumbnailBlob = await videoThumbnail(record.blob);
-        if (record.thumbnailBlob) await putRecord('media', record);
+        record.thumbnailVersion = VIDEO_THUMBNAIL_VERSION;
+        await putRecord('media', record);
       }
       const thumbnailUrl = record.thumbnailBlob ? URL.createObjectURL(record.thumbnailBlob) : LOCAL_VIDEO_PLACEHOLDER;
       if (record.thumbnailBlob) sessionObjectUrls.push(thumbnailUrl);

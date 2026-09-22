@@ -327,6 +327,7 @@ renderContentManager();
 function showScreen(name) {
   window.clearInterval(videoDemoTimer);
   window.clearTimeout(videoControlsTimer);
+  document.body.classList.toggle('is-parent-screen', name === 'parent');
   if (name !== 'audio-player') document.querySelector('#local-audio-player').pause();
   if (name !== 'video-player') document.querySelector('#local-video-player').pause();
   document.querySelector('.time-warning').hidden = true;

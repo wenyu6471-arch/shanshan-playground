@@ -13,7 +13,10 @@ const importedFileKeys = new Set();
 const sessionObjectUrls = [];
 const DB_NAME = 'shanshan-local-library';
 const DB_VERSION = 1;
+const PARENT_CREDENTIAL_KEY = 'parent-credential-id';
 let databasePromise;
+let parentCredentialId = '';
+let parentAuthBusy = false;
 
 function openDatabase() {
   if (!('indexedDB' in window)) return Promise.reject(new Error('IndexedDB unavailable'));
@@ -44,6 +47,7 @@ async function databaseRequest(storeName, mode, operation) {
 
 const getAllRecords = (storeName) => databaseRequest(storeName, 'readonly', (store) => store.getAll());
 const putRecord = (storeName, value) => databaseRequest(storeName, 'readwrite', (store) => store.put(value));
+const deleteRecord = (storeName, key) => databaseRequest(storeName, 'readwrite', (store) => store.delete(key));
 
 async function saveSetting(key, value) {
   try {
@@ -61,6 +65,117 @@ async function readSetting(key) {
     console.warn('设置读取失败', error);
     return undefined;
   }
+}
+
+function randomBytes(length = 32) {
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+function bufferToBase64Url(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+    .replaceAll('+', '-')
+    .replaceAll('/', '_')
+    .replace(/=+$/, '');
+}
+
+function base64UrlToBytes(value) {
+  const base64 = value.replaceAll('-', '+').replaceAll('_', '/').padEnd(Math.ceil(value.length / 4) * 4, '=');
+  return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0));
+}
+
+async function supportsParentDeviceVerification() {
+  if (!window.isSecureContext || !window.PublicKeyCredential || !navigator.credentials) return false;
+  if (!PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable) return true;
+  try {
+    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+  } catch {
+    return false;
+  }
+}
+
+function updateParentAuthInterface(supported = true) {
+  const enabled = Boolean(parentCredentialId);
+  const status = document.querySelector('#parent-auth-status');
+  const help = document.querySelector('#parent-auth-help');
+  const toggle = document.querySelector('[data-parent-auth-toggle]');
+  const title = document.querySelector('#parent-dialog-title');
+  const copy = document.querySelector('[data-parent-auth-copy]');
+  const note = document.querySelector('[data-parent-auth-note]');
+  const hold = document.querySelector('[data-hold-enter]');
+  const verify = document.querySelector('[data-device-verify]');
+
+  if (status) status.textContent = enabled ? '设备验证已开启' : supported ? '长按进入家长中心' : '当前浏览器不支持设备验证';
+  if (help) help.textContent = enabled
+    ? '进入家长中心时由系统验证；本站不会读取或保存生物信息。'
+    : supported
+      ? '可以启用这台设备的 Face ID、Touch ID 或设备密码。'
+      : '请使用最新版 iPadOS Safari，并确认设备已设置锁屏密码。';
+  if (toggle) {
+    toggle.textContent = enabled ? '关闭设备验证' : '启用设备验证';
+    toggle.disabled = !enabled && !supported;
+  }
+  if (title) title.textContent = enabled ? '验证家长身份' : '这是家长入口';
+  if (copy) copy.textContent = enabled ? '使用这台设备完成验证后进入家长中心。' : '请按住下面的按钮，直到圆环走完。';
+  if (note) note.textContent = enabled
+    ? '验证由 iPad 系统完成，可使用 Face ID、Touch ID 或设备密码。'
+    : '首次进入后，可以在基础设置中启用设备验证。';
+  if (hold) hold.hidden = enabled;
+  if (verify) verify.hidden = !enabled;
+}
+
+async function createParentCredential() {
+  if (!await supportsParentDeviceVerification()) throw new Error('unsupported');
+  const credential = await navigator.credentials.create({
+    publicKey: {
+      challenge: randomBytes(),
+      rp: { name: '闪闪小乐园' },
+      user: {
+        id: randomBytes(),
+        name: 'shanshan-parent',
+        displayName: '闪闪的家长'
+      },
+      pubKeyCredParams: [
+        { type: 'public-key', alg: -7 },
+        { type: 'public-key', alg: -257 }
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: 'platform',
+        residentKey: 'required',
+        userVerification: 'required'
+      },
+      timeout: 60000,
+      attestation: 'none'
+    }
+  });
+  if (!credential) throw new Error('cancelled');
+  parentCredentialId = bufferToBase64Url(credential.rawId);
+  await saveSetting(PARENT_CREDENTIAL_KEY, parentCredentialId);
+  updateParentAuthInterface(true);
+}
+
+async function verifyParentCredential() {
+  if (!parentCredentialId) return false;
+  const credential = await navigator.credentials.get({
+    publicKey: {
+      challenge: randomBytes(),
+      allowCredentials: [{
+        type: 'public-key',
+        id: base64UrlToBytes(parentCredentialId),
+        transports: ['internal']
+      }],
+      userVerification: 'required',
+      timeout: 60000
+    }
+  });
+  return Boolean(credential);
+}
+
+function parentAuthMessage(error) {
+  if (error?.name === 'NotAllowedError' || error?.message === 'cancelled') return '未完成设备验证，请再试一次';
+  if (error?.message === 'unsupported') return '这台设备暂时不支持设备验证';
+  return '设备验证没有完成，请确认设备密码后重试';
 }
 
 const seriesCatalog = {
@@ -165,7 +280,7 @@ function renderContentManager(mode = managedMode) {
     const image = card.querySelector('img')?.getAttribute('src') || 'assets/illustrations/icon-listen.png';
     const title = card.querySelector('.media-cover__title')?.textContent || '未命名内容';
     const meta = card.querySelector('.media-cover__meta')?.textContent || '';
-    row.innerHTML = `<img src="${escapeHtml(image)}" alt=""><div class="content-manager__name"><input type="text" value="${escapeHtml(title)}" data-rename-content="${escapeHtml(id)}" aria-label="内容名称"><small>${escapeHtml(meta)}</small></div><div class="content-manager__order" aria-label="调整顺序"><button type="button" data-move-content="up" aria-label="上移" ${index === 0 ? 'disabled' : ''}>↑</button><button type="button" data-move-content="down" aria-label="下移" ${index === cards.length - 1 ? 'disabled' : ''}>↓</button></div><label class="visibility-toggle"><input type="checkbox" data-toggle-visible="${escapeHtml(id)}" ${card.hidden ? '' : 'checked'}><span>${card.hidden ? '已隐藏' : '儿童端可见'}</span><i></i></label>`;
+    row.innerHTML = `<img src="${escapeHtml(image)}" alt=""><div class="content-manager__name"><input type="text" value="${escapeHtml(title)}" data-rename-content="${escapeHtml(id)}" aria-label="内容名称"><small>${escapeHtml(meta)}</small></div><div class="content-manager__order" aria-label="调整顺序"><button type="button" data-move-content="up" aria-label="上移" ${index === 0 ? 'disabled' : ''}>↑</button><button type="button" data-move-content="down" aria-label="下移" ${index === cards.length - 1 ? 'disabled' : ''}>↓</button></div><label class="visibility-toggle"><input type="checkbox" data-toggle-visible="${escapeHtml(id)}" ${card.hidden ? '' : 'checked'}><span>${card.hidden ? '已隐藏' : '儿童端可见'}</span><i></i></label><button class="content-manager__delete" type="button" data-delete-content="${escapeHtml(id)}" aria-label="删除${escapeHtml(title)}">删除</button>`;
     return row;
   }));
 }
@@ -188,7 +303,12 @@ async function saveContentState(mode) {
 async function restoreContentState(mode) {
   const shelf = getManagedShelf(mode);
   const items = await readSetting(`content:${mode}`);
-  if (!shelf || !Array.isArray(items)) return;
+  if (!shelf) return;
+  const deletedIds = await readSetting(`deleted-content:${mode}`);
+  if (Array.isArray(deletedIds)) {
+    deletedIds.forEach((id) => cardsWithId(id).forEach((card) => card.remove()));
+  }
+  if (!Array.isArray(items)) return;
   items.forEach((saved) => {
     const card = [...shelf.querySelectorAll('.media-cover')].find((item) => item.dataset.contentId === saved.id);
     if (!card) return;
@@ -285,7 +405,7 @@ function showToast(message) {
   }, 2600);
 }
 
-document.addEventListener('click', (event) => {
+document.addEventListener('click', async (event) => {
   const videoSurface = event.target.closest('[data-screen="video-player"]');
   const videoChrome = event.target.closest('.video-overlay-bar, .video-controls, .time-warning, video');
   if (videoSurface && !videoChrome && !videoSurface.classList.contains('is-local')) {
@@ -412,6 +532,34 @@ document.addEventListener('click', (event) => {
     showToast('儿童端顺序已更新');
   }
 
+  const deleteButton = event.target.closest('[data-delete-content]');
+  if (deleteButton) {
+    const id = deleteButton.dataset.deleteContent;
+    const row = deleteButton.closest('[data-manage-id]');
+    const title = row?.querySelector('[data-rename-content]')?.value.trim() || '这项内容';
+    if (!window.confirm(`确定删除“${title}”吗？\n删除后需要重新导入才能恢复。`)) return;
+
+    if (id === 'local-video-series') {
+      const localVideos = (await getAllRecords('media')).filter((record) => record.category === 'video');
+      await Promise.all(localVideos.map((record) => deleteRecord('media', record.id)));
+      localVideos.forEach((record) => importedFileKeys.delete(record.key));
+      delete seriesCatalog['local-videos'];
+    } else if (id.startsWith('local-')) {
+      const record = await databaseRequest('media', 'readonly', (store) => store.get(id));
+      await deleteRecord('media', id);
+      if (record?.key) importedFileKeys.delete(record.key);
+    } else {
+      const deletedKey = `deleted-content:${managedMode}`;
+      const deletedIds = await readSetting(deletedKey) || [];
+      if (!deletedIds.includes(id)) await saveSetting(deletedKey, [...deletedIds, id]);
+    }
+
+    cardsWithId(id).forEach((card) => card.remove());
+    await saveContentState(managedMode);
+    renderContentManager(managedMode);
+    showToast(`已删除“${title}”`);
+  }
+
   if (event.target.closest('[data-add-time]')) {
     document.querySelector('#usage-left').textContent = '剩余 34 分钟';
     document.querySelector('#video-remaining').textContent = '还剩 34 分钟';
@@ -462,7 +610,6 @@ document.addEventListener('change', (event) => {
   }
 });
 
-document.querySelectorAll('[data-parent-lock]').forEach((button) => button.addEventListener('click', () => parentDialog.showModal()));
 document.querySelector('[data-close-dialog]').addEventListener('click', () => parentDialog.close());
 parentDialog.addEventListener('click', (event) => {
   const bounds = parentDialog.getBoundingClientRect();
@@ -471,6 +618,64 @@ parentDialog.addEventListener('click', (event) => {
 });
 
 const holdButton = document.querySelector('[data-hold-enter]');
+const deviceVerifyButton = document.querySelector('[data-device-verify]');
+const parentAuthToggle = document.querySelector('[data-parent-auth-toggle]');
+
+async function enterWithDeviceVerification() {
+  if (parentAuthBusy) return;
+  parentAuthBusy = true;
+  deviceVerifyButton.disabled = true;
+  deviceVerifyButton.setAttribute('aria-busy', 'true');
+  deviceVerifyButton.textContent = '正在等待系统验证…';
+  try {
+    if (!await verifyParentCredential()) throw new Error('cancelled');
+    if (parentDialog.open) parentDialog.close();
+    showScreen('parent');
+  } catch (error) {
+    if (!parentDialog.open) parentDialog.showModal();
+    showToast(parentAuthMessage(error));
+  } finally {
+    parentAuthBusy = false;
+    deviceVerifyButton.disabled = false;
+    deviceVerifyButton.removeAttribute('aria-busy');
+    deviceVerifyButton.textContent = '使用设备验证';
+  }
+}
+
+document.querySelectorAll('[data-parent-lock]').forEach((button) => button.addEventListener('click', async () => {
+  if (!parentCredentialId) {
+    updateParentAuthInterface(await supportsParentDeviceVerification());
+    if (!parentDialog.open) parentDialog.showModal();
+    return;
+  }
+  await enterWithDeviceVerification();
+}));
+
+deviceVerifyButton.addEventListener('click', enterWithDeviceVerification);
+
+parentAuthToggle.addEventListener('click', async () => {
+  if (parentAuthBusy) return;
+  parentAuthBusy = true;
+  parentAuthToggle.disabled = true;
+  parentAuthToggle.setAttribute('aria-busy', 'true');
+  try {
+    if (parentCredentialId) {
+      parentCredentialId = '';
+      await saveSetting(PARENT_CREDENTIAL_KEY, '');
+      updateParentAuthInterface(await supportsParentDeviceVerification());
+      showToast('设备验证已关闭');
+    } else {
+      await createParentCredential();
+      showToast('设备验证已开启');
+    }
+  } catch (error) {
+    showToast(parentAuthMessage(error));
+  } finally {
+    parentAuthBusy = false;
+    parentAuthToggle.removeAttribute('aria-busy');
+    updateParentAuthInterface(await supportsParentDeviceVerification());
+  }
+});
 
 function beginHold() {
   holdButton.classList.add('is-holding');
@@ -782,6 +987,8 @@ async function initializePersistentApp() {
     await Promise.all(['music', 'story', 'video'].map(restoreContentState));
     await saveContentState('video');
     await restoreSettings();
+    parentCredentialId = await readSetting(PARENT_CREDENTIAL_KEY) || '';
+    updateParentAuthInterface(await supportsParentDeviceVerification());
     renderContentManager(managedMode);
   } catch (error) {
     console.warn('本地数据库初始化失败', error);

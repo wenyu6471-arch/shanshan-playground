@@ -12,8 +12,8 @@
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=1">
   <title>闪闪小乐园</title>
   <link rel="stylesheet" href="tokens.css?v=8">
-  <link rel="stylesheet" href="styles.css?v=8">
-  <link rel="stylesheet" href="redesign.css?v=26">
+  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="redesign.css?v=28">
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true">
@@ -280,7 +280,7 @@
               <button type="button" role="tab" aria-selected="false" data-manage-mode="story">故事</button>
               <button type="button" role="tab" aria-selected="false" data-manage-mode="video">动画</button>
             </div>
-            <div class="content-manager__hint"><span>直接修改名称；使用箭头调整儿童端顺序。</span><button class="text-button" type="button" data-go="empty">预览空状态</button></div>
+            <div class="content-manager__hint"><span>可以重命名、排序、显隐或删除；删除前会再次确认。</span><button class="text-button" type="button" data-go="empty">预览空状态</button></div>
             <div class="content-manager__list" id="content-manager-list" aria-live="polite"></div>
           </div>
         </section>
@@ -298,7 +298,7 @@
 
         <section class="parent-panel" data-parent-panel="settings" hidden>
           <header class="parent-heading"><div><p>设备上的偏好</p><h1>基础设置</h1></div></header>
-          <div class="settings-groups"><section class="settings-group"><div class="setting-row"><label for="child-name">孩子称呼</label><input id="child-name" type="text" value="闪闪" data-setting="child-name"></div><div class="setting-row setting-row--switch"><span><strong>语音提醒</strong><small>剩余 5 分钟和 1 分钟时提醒</small></span><label class="switch"><input type="checkbox" checked data-setting="voice-reminder"><i></i><span class="visually-hidden">语音提醒</span></label></div><div class="setting-row setting-row--switch"><span><strong>低动态效果</strong><small>减少界面中的位移动画</small></span><label class="switch"><input type="checkbox" data-setting="reduce-motion"><i></i><span class="visually-hidden">低动态效果</span></label></div></section><section class="settings-group"><h2>离线应用</h2><div class="setting-row setting-row--switch"><span><strong id="pwa-status">正在准备离线使用</strong><small id="pwa-help">在 iPad Safari 中点击“分享”→“添加到主屏幕”。</small></span><button class="btn btn--soft" type="button" data-enable-offline>检查离线状态</button></div></section></div>
+          <div class="settings-groups"><section class="settings-group"><div class="setting-row"><label for="child-name">孩子称呼</label><input id="child-name" type="text" value="闪闪" data-setting="child-name"></div><div class="setting-row setting-row--switch"><span><strong>语音提醒</strong><small>剩余 5 分钟和 1 分钟时提醒</small></span><label class="switch"><input type="checkbox" checked data-setting="voice-reminder"><i></i><span class="visually-hidden">语音提醒</span></label></div><div class="setting-row setting-row--switch"><span><strong>低动态效果</strong><small>减少界面中的位移动画</small></span><label class="switch"><input type="checkbox" data-setting="reduce-motion"><i></i><span class="visually-hidden">低动态效果</span></label></div></section><section class="settings-group"><h2>家长验证</h2><div class="setting-row setting-row--switch"><span><strong id="parent-auth-status">长按进入家长中心</strong><small id="parent-auth-help">可以启用这台设备的 Face ID、Touch ID 或设备密码。</small></span><button class="btn btn--soft" type="button" data-parent-auth-toggle>启用设备验证</button></div></section><section class="settings-group"><h2>离线应用</h2><div class="setting-row setting-row--switch"><span><strong id="pwa-status">正在准备离线使用</strong><small id="pwa-help">在 iPad Safari 中点击“分享”→“添加到主屏幕”。</small></span><button class="btn btn--soft" type="button" data-enable-offline>检查离线状态</button></div></section></div>
         </section>
       </div>
     </section>
@@ -308,13 +308,14 @@
     <button class="dialog-close" type="button" data-close-dialog aria-label="关闭"><span aria-hidden="true">×</span></button>
     <div class="dialog-lock"><svg><use href="#i-lock"></use></svg></div>
     <h2 id="parent-dialog-title">这是家长入口</h2>
-    <p>请按住下面的按钮，直到圆环走完。</p>
+    <p data-parent-auth-copy>请按住下面的按钮，直到圆环走完。</p>
     <button class="hold-button" type="button" data-hold-enter><span>按住进入</span><i></i></button>
-    <small>正式应用将优先使用 Face ID、Touch ID 或设备密码。</small>
+    <button class="btn btn--soft parent-auth-button" type="button" data-device-verify hidden>使用设备验证</button>
+    <small data-parent-auth-note>首次进入后，可以在基础设置中启用设备验证。</small>
   </dialog>
 
   <div class="toast" role="status" aria-live="polite" hidden><svg><use href="#i-check"></use></svg><span></span></div>
   <input class="visually-hidden" id="local-file-input" type="file" accept="audio/*,video/*" multiple>
-  <script src="app.js?v=16"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>

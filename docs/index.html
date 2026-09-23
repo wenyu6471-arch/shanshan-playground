@@ -12,8 +12,8 @@
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png?v=1">
   <title>闪闪小乐园</title>
   <link rel="stylesheet" href="tokens.css?v=8">
-  <link rel="stylesheet" href="styles.css?v=9">
-  <link rel="stylesheet" href="redesign.css?v=29">
+  <link rel="stylesheet" href="styles.css?v=10">
+  <link rel="stylesheet" href="redesign.css?v=30">
 </head>
 <body>
   <svg class="icon-sprite" aria-hidden="true">
@@ -156,7 +156,7 @@
     <section class="screen screen--player screen--audio" data-screen="audio-player" data-audio-theme="night" aria-labelledby="now-audio-title" hidden>
       <header class="player-bar">
         <button class="round-control round-control--light" type="button" data-go="home" aria-label="返回首页"><svg><use href="#i-back"></use></svg></button>
-        <span>正在听</span><span class="player-mode">锁屏也能继续播放</span>
+        <span>正在听</span>
       </header>
       <div class="audio-player-layout">
         <div class="album-stage" aria-hidden="true"><span class="album-moon"></span><span class="album-star album-star--one"></span><span class="album-star album-star--two"></span></div>
@@ -167,9 +167,9 @@
           <div class="progress"><span style="--progress: 38%"></span></div>
           <div class="progress-label"><span>01:42</span><span>04:30</span></div>
           <div class="transport">
-            <button class="round-control round-control--light" type="button" aria-label="上一首"><svg><use href="#i-prev"></use></svg></button>
+            <button class="round-control round-control--light" type="button" data-audio-skip="-1" aria-label="上一首"><svg><use href="#i-prev"></use></svg></button>
             <button class="play-control" type="button" data-toggle-play aria-label="暂停"><svg><use href="#i-pause"></use></svg></button>
-            <button class="round-control round-control--light" type="button" aria-label="下一首"><svg><use href="#i-next"></use></svg></button>
+            <button class="round-control round-control--light" type="button" data-audio-skip="1" aria-label="下一首"><svg><use href="#i-next"></use></svg></button>
           </div>
         </div>
       </div>
@@ -183,7 +183,7 @@
         <div class="time-badge time-badge--dark"><svg><use href="#i-clock"></use></svg><span id="video-remaining">还剩 24 分钟</span></div>
       </header>
       <video class="local-video-player" id="local-video-player" controls playsinline hidden></video>
-      <div class="video-scene" aria-label="动画演示画面">
+      <div class="video-scene" aria-label="动画画面">
         <span class="video-sun"></span><span class="video-cloud video-cloud--one"></span><span class="video-cloud video-cloud--two"></span><span class="video-hill video-hill--back"></span><span class="video-hill video-hill--front"></span><span class="video-little-house"></span>
       </div>
       <div class="time-warning" role="status" aria-live="polite" hidden>
@@ -237,7 +237,7 @@
         <img src="assets/illustrations/shanshan-mascot.png?v=5" alt="" aria-hidden="true">
         <h2 id="empty-title">这里还没有音乐</h2>
         <p>请爸爸妈妈到家长中心添加本地内容。</p>
-        <button class="btn btn--soft" type="button" data-go="home">返回演示首页</button>
+        <button class="btn btn--soft" type="button" data-go="home">返回首页</button>
       </div>
     </section>
 
@@ -256,7 +256,7 @@
       <div class="parent-main">
         <div class="parent-mobile-bar"><strong>家长中心</strong><button class="btn btn--soft" type="button" data-go="home"><svg><use href="#i-home"></use></svg>儿童模式</button></div>
         <section class="parent-panel is-active" data-parent-panel="overview">
-          <header class="parent-heading"><div><p>演示日期 · 2026 年 9 月 18 日</p><h1 id="parent-title">今天的使用情况</h1></div><span class="status-dot"><i></i>演示数据 · 内容均来自本地</span></header>
+          <header class="parent-heading"><h1 id="parent-title">今天的使用情况</h1></header>
           <div class="usage-layout">
             <div class="usage-hero">
               <div class="usage-dial" aria-label="动画已使用 6 分钟，共 30 分钟"><span><strong>6</strong><small>/ 30 分钟</small></span></div>
@@ -269,35 +269,34 @@
               <div class="usage-row"><span class="usage-icon usage-icon--mint"><svg><use href="#i-clock"></use></svg></span><div><strong>允许时段</strong><small>每天可自行调整</small></div><b>08:00–20:30</b></div>
             </div>
           </div>
-          <div class="recent-block"><div class="section-heading"><h2>最近播放</h2><button class="text-button" type="button">查看全部</button></div><div class="recent-row"><span class="recent-thumb cover--coral"></span><div><strong>云朵旅行记 · 第 3 集</strong><small>动画 · 今天 15:26</small></div><span>看到 03:10</span></div><div class="recent-row"><span class="recent-thumb cover--blue"></span><div><strong>晚安小星星</strong><small>音乐 · 今天 13:08</small></div><span>听了 12 分钟</span></div></div>
+          <div class="recent-block"><div class="section-heading"><h2>最近播放</h2></div><div class="recent-row"><span class="recent-thumb cover--coral"></span><div><strong>云朵旅行记 · 第 3 集</strong><small>动画 · 今天 15:26</small></div><span>看到 03:10</span></div><div class="recent-row"><span class="recent-thumb cover--blue"></span><div><strong>晚安小星星</strong><small>音乐 · 今天 13:08</small></div><span>听了 12 分钟</span></div></div>
         </section>
 
         <section class="parent-panel" data-parent-panel="content" hidden>
-          <header class="parent-heading"><div><p>本机内容</p><h1>内容管理</h1></div><button class="btn btn--pear" type="button" data-import><svg><use href="#i-folder"></use></svg>导入本地内容</button></header>
+          <header class="parent-heading"><h1>内容管理</h1><button class="btn btn--pear" type="button" data-import><svg><use href="#i-folder"></use></svg>导入本地内容</button></header>
           <div class="content-manager">
             <div class="content-manager__tabs" role="tablist" aria-label="选择内容分类">
               <button class="is-selected" type="button" role="tab" aria-selected="true" data-manage-mode="music">音乐</button>
               <button type="button" role="tab" aria-selected="false" data-manage-mode="story">故事</button>
               <button type="button" role="tab" aria-selected="false" data-manage-mode="video">动画</button>
             </div>
-            <div class="content-manager__hint"><span>可以重命名、排序、显隐或删除；删除前会再次确认。</span><button class="text-button" type="button" data-go="empty">预览空状态</button></div>
+            <div class="content-manager__hint"><span>可以重命名、排序、显隐或删除；删除前会再次确认。</span></div>
             <div class="content-manager__list" id="content-manager-list" aria-live="polite"></div>
           </div>
         </section>
 
         <section class="parent-panel" data-parent-panel="rules" hidden>
-          <header class="parent-heading"><div><p>由家长定义</p><h1>时间规则</h1></div><button class="btn btn--soft" type="button" data-save-rules>保存修改</button></header>
+          <header class="parent-heading"><h1>时间规则</h1><button class="btn btn--soft" type="button" data-save-rules>保存修改</button></header>
           <div class="settings-groups">
             <section class="settings-group"><h2>动画</h2><div class="setting-row"><label for="video-limit">每天最多观看</label><output id="video-limit-output">30 分钟</output><input id="video-limit" type="range" min="10" max="90" step="5" value="30"></div><div class="setting-row setting-row--switch"><span><strong>播放下一集</strong><small>当前关闭，播完后返回列表</small></span><label class="switch"><input type="checkbox" data-setting="autoplay-video"><i></i><span class="visually-hidden">播放下一集</span></label></div></section>
             <section class="settings-group"><h2>音乐</h2><div class="setting-row"><label for="music-limit">每天最多收听</label><output id="music-limit-output">60 分钟</output><input id="music-limit" type="range" min="10" max="120" step="5" value="60"></div><div class="setting-row setting-row--switch"><span><strong>锁屏继续播放</strong><small>关闭屏幕后音乐不中断</small></span><label class="switch"><input type="checkbox" checked data-setting="background-music"><i></i><span class="visually-hidden">锁屏继续播放音乐</span></label></div></section>
             <section class="settings-group"><h2>故事</h2><div class="setting-row"><label for="story-limit">每天最多收听</label><output id="story-limit-output">40 分钟</output><input id="story-limit" type="range" min="10" max="120" step="5" value="40"></div><div class="setting-row setting-row--switch"><span><strong>锁屏继续播放</strong><small>关闭屏幕后故事不中断</small></span><label class="switch"><input type="checkbox" checked data-setting="background-story"><i></i><span class="visually-hidden">锁屏继续播放故事</span></label></div></section>
             <section class="settings-group"><h2>允许时段</h2><div class="setting-row setting-row--two"><label>开始时间<input type="time" value="08:00" data-setting="allowed-start"></label><label>结束时间<input type="time" value="20:30" data-setting="allowed-end"></label></div></section>
           </div>
-          <button class="text-button text-button--preview" type="button" data-go="rest">预览时间结束页</button>
         </section>
 
         <section class="parent-panel" data-parent-panel="settings" hidden>
-          <header class="parent-heading"><div><p>设备上的偏好</p><h1>基础设置</h1></div></header>
+          <header class="parent-heading"><h1>基础设置</h1></header>
           <div class="settings-groups"><section class="settings-group"><div class="setting-row"><label for="child-name">孩子称呼</label><input id="child-name" type="text" value="闪闪" data-setting="child-name"></div><div class="setting-row setting-row--switch"><span><strong>语音提醒</strong><small>剩余 5 分钟和 1 分钟时提醒</small></span><label class="switch"><input type="checkbox" checked data-setting="voice-reminder"><i></i><span class="visually-hidden">语音提醒</span></label></div><div class="setting-row setting-row--switch"><span><strong>低动态效果</strong><small>减少界面中的位移动画</small></span><label class="switch"><input type="checkbox" data-setting="reduce-motion"><i></i><span class="visually-hidden">低动态效果</span></label></div></section><section class="settings-group"><h2>家长验证</h2><div class="setting-row setting-row--switch"><span><strong id="parent-auth-status">长按进入家长中心</strong><small id="parent-auth-help">可以启用这台设备的 Face ID、Touch ID 或设备密码。</small></span><button class="btn btn--soft" type="button" data-parent-auth-toggle>启用设备验证</button></div></section><section class="settings-group"><h2>离线应用</h2><div class="setting-row setting-row--switch"><span><strong id="pwa-status">正在准备离线使用</strong><small id="pwa-help">在 iPad Safari 中点击“分享”→“添加到主屏幕”。</small></span><button class="btn btn--soft" type="button" data-enable-offline>检查离线状态</button></div></section></div>
         </section>
       </div>
@@ -316,6 +315,6 @@
 
   <div class="toast" role="status" aria-live="polite" hidden><svg><use href="#i-check"></use></svg><span></span></div>
   <input class="visually-hidden" id="local-file-input" type="file" accept="audio/*,video/*" multiple>
-  <script src="app.js?v=19"></script>
+  <script src="app.js?v=20"></script>
 </body>
 </html>

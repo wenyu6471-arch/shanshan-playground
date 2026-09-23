@@ -1,11 +1,11 @@
-const CACHE_NAME = 'shanshan-shell-v10';
+const CACHE_NAME = 'shanshan-shell-v11';
 const APP_SHELL = [
   './',
   './index.html',
   './tokens.css?v=8',
-  './styles.css?v=9',
-  './redesign.css?v=29',
-  './app.js?v=19',
+  './styles.css?v=10',
+  './redesign.css?v=30',
+  './app.js?v=20',
   './manifest.webmanifest?v=1',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',

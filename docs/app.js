@@ -7,6 +7,9 @@ let videoDemoTimer;
 let videoControlsTimer;
 let videoDemoSeconds = 10;
 let videoPlaying = true;
+let audioPlaying = true;
+let activeAudioId = '';
+let activeAudioKind = 'music';
 let activeSeries = 'bluey';
 let managedMode = 'music';
 const importedFileKeys = new Set();
@@ -356,6 +359,50 @@ function setVideoPlayState(playing) {
   toggle.setAttribute('aria-label', playing ? '暂停' : '继续播放');
 }
 
+function setAudioPlayState(playing) {
+  audioPlaying = playing;
+  const toggle = document.querySelector('[data-screen="audio-player"] [data-toggle-play]');
+  toggle.querySelector('use').setAttribute('href', playing ? '#i-pause' : '#i-play');
+  toggle.setAttribute('aria-label', playing ? '暂停' : '继续播放');
+}
+
+function audioCards(kind = activeAudioKind) {
+  return [...document.querySelectorAll(`[data-home-mount="${kind}"] .home-media-shelf [data-play-audio]`)]
+    .filter((card) => !card.hidden);
+}
+
+function playAudioCard(card, { navigate = true } = {}) {
+  if (!card) return;
+  activeAudioId = card.dataset.contentId || card.dataset.playAudio;
+  activeAudioKind = card.dataset.audioKind || activeAudioKind;
+  document.querySelector('#now-audio-title').textContent = card.dataset.playAudio;
+  document.querySelector('.track-name').textContent = card.dataset.localUrl ? '已保存在这台设备' : activeAudioKind === 'story' ? '闪闪的故事' : '闪闪的歌单';
+  document.querySelector('[data-screen="audio-player"]').dataset.audioTheme = card.dataset.playerTheme || 'night';
+  const localAudio = document.querySelector('#local-audio-player');
+  if (card.dataset.localUrl) {
+    if (localAudio.src !== card.dataset.localUrl) localAudio.src = card.dataset.localUrl;
+    localAudio.play().then(() => setAudioPlayState(true)).catch(() => {
+      setAudioPlayState(false);
+      showToast('这个音频暂时无法播放，请换一个文件');
+    });
+  } else {
+    localAudio.pause();
+    localAudio.removeAttribute('src');
+    setAudioPlayState(true);
+  }
+  if (navigate) showScreen('audio-player');
+}
+
+function skipAudio(direction) {
+  const cards = audioCards();
+  if (!cards.length) return;
+  let index = cards.findIndex((card) => (card.dataset.contentId || card.dataset.playAudio) === activeAudioId);
+  if (index < 0) index = 0;
+  const nextIndex = (index + direction + cards.length) % cards.length;
+  playAudioCard(cards[nextIndex], { navigate: false });
+  showToast(`正在播放“${cards[nextIndex].dataset.playAudio}”`);
+}
+
 function hideVideoControls() {
   const screen = document.querySelector('[data-screen="video-player"]');
   if (!videoPlaying || screen.hidden || !document.querySelector('.time-warning').hidden) return;
@@ -376,12 +423,12 @@ function startVideoDemo() {
   setVideoPlayState(true);
   const label = document.querySelector('#video-remaining');
   const warning = document.querySelector('.time-warning');
-  label.textContent = `演示：${videoDemoSeconds} 秒`;
+  label.textContent = `还剩 ${videoDemoSeconds} 秒`;
   showVideoControls();
   videoDemoTimer = window.setInterval(() => {
     if (!videoPlaying) return;
     videoDemoSeconds -= 1;
-    label.textContent = `演示：${videoDemoSeconds} 秒`;
+    label.textContent = `还剩 ${videoDemoSeconds} 秒`;
     if (videoDemoSeconds === 5) {
       warning.hidden = false;
       showVideoControls({ autoHide: false });
@@ -441,20 +488,10 @@ document.addEventListener('click', async (event) => {
   if (nav) showScreen(nav.dataset.go);
 
   const audio = event.target.closest('[data-play-audio]');
-  if (audio) {
-    document.querySelector('#now-audio-title').textContent = audio.dataset.playAudio;
-    document.querySelector('.track-name').textContent = audio.dataset.localUrl ? '本地音频 · 已保存在本机' : '来自闪闪的歌单';
-    document.querySelector('[data-screen="audio-player"]').dataset.audioTheme = audio.dataset.playerTheme || 'night';
-    const localAudio = document.querySelector('#local-audio-player');
-    if (audio.dataset.localUrl) {
-      localAudio.src = audio.dataset.localUrl;
-      localAudio.play().catch(() => showToast('这个音频暂时无法播放，请换一个文件'));
-    } else {
-      localAudio.pause();
-      localAudio.removeAttribute('src');
-    }
-    showScreen('audio-player');
-  }
+  if (audio) playAudioCard(audio);
+
+  const audioSkip = event.target.closest('[data-audio-skip]');
+  if (audioSkip) skipAudio(Number(audioSkip.dataset.audioSkip));
 
   const series = event.target.closest('[data-open-series]');
   if (series) {
@@ -494,7 +531,12 @@ document.addEventListener('click', async (event) => {
     }
     if (toggle.closest('[data-screen="audio-player"]')) {
       const localAudio = document.querySelector('#local-audio-player');
-      if (localAudio.src) paused ? localAudio.play() : localAudio.pause();
+      if (localAudio.src) {
+        if (paused) localAudio.play().catch(() => showToast('这个音频暂时无法继续播放'));
+        else localAudio.pause();
+      } else {
+        setAudioPlayState(paused);
+      }
     }
   }
 
@@ -886,7 +928,11 @@ fileInput.addEventListener('change', async () => {
   else if (skipped) showToast('没有加入文件：可能格式不支持或内容重复');
 });
 
-document.querySelector('#local-audio-player').addEventListener('error', () => showToast('这个音频文件无法读取'));
+const localAudioPlayer = document.querySelector('#local-audio-player');
+localAudioPlayer.addEventListener('play', () => setAudioPlayState(true));
+localAudioPlayer.addEventListener('pause', () => setAudioPlayState(false));
+localAudioPlayer.addEventListener('ended', () => skipAudio(1));
+localAudioPlayer.addEventListener('error', () => showToast('这个音频文件无法读取'));
 document.querySelector('#local-video-player').addEventListener('error', () => showToast('这个视频文件无法读取'));
 document.addEventListener('visibilitychange', () => {
   const videoScreen = document.querySelector('[data-screen="video-player"]');
